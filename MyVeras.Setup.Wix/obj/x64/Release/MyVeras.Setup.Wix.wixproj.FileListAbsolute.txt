@@ -1,0 +1,1 @@
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Setup.Wix\obj\x64\Release\MyVeras.Setup.Wix.wixproj.CoreCompileInputs.cache

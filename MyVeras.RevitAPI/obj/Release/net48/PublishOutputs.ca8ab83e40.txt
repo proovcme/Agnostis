@@ -1,0 +1,14 @@
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.RevitAPI.dll
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.RevitAPI.dll.config
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.RevitAPI.pdb
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\Newtonsoft.Json.dll
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Bridge.dll
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Core.dll
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Engines.dll
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Models.dll
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Settings.dll
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Bridge.pdb
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Core.pdb
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Engines.pdb
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Models.pdb
+c:\Users\Oleg\CascadeProjects\MyVeras\Dist\MyVeras.Settings.pdb

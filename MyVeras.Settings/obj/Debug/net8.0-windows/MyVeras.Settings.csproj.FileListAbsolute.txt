@@ -1,0 +1,15 @@
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\bin\Debug\net8.0-windows\MyVeras.Settings.deps.json
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\bin\Debug\net8.0-windows\MyVeras.Settings.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\bin\Debug\net8.0-windows\MyVeras.Settings.pdb
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\bin\Debug\net8.0-windows\MyVeras.Models.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\bin\Debug\net8.0-windows\MyVeras.Models.pdb
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras.Settings.csproj.AssemblyReference.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras.Settings.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras.Settings.AssemblyInfoInputs.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras.Settings.AssemblyInfo.cs
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras.Settings.csproj.CoreCompileInputs.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras..5B9F63DA.Up2Date
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras.Settings.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\refint\MyVeras.Settings.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\MyVeras.Settings.pdb
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Settings\obj\Debug\net8.0-windows\ref\MyVeras.Settings.dll

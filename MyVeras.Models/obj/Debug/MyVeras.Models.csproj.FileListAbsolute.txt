@@ -1,0 +1,8 @@
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\MyVeras.Models.csproj.AssemblyReference.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\MyVeras.Models.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\MyVeras.Models.AssemblyInfoInputs.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\MyVeras.Models.AssemblyInfo.cs
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\MyVeras.Models.csproj.CoreCompileInputs.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\MyVeras.Models.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\refint\MyVeras.Models.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Debug\MyVeras.Models.pdb

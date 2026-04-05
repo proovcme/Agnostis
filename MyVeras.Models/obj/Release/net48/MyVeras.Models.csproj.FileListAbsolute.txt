@@ -1,0 +1,11 @@
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\bin\Release\net48\MyVeras.Models.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\bin\Release\net48\MyVeras.Models.pdb
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\bin\Release\net48\Newtonsoft.Json.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras.Models.csproj.AssemblyReference.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras.Models.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras.Models.AssemblyInfoInputs.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras.Models.AssemblyInfo.cs
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras.Models.csproj.CoreCompileInputs.cache
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras..0F810210.Up2Date
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras.Models.dll
+C:\Users\Oleg\CascadeProjects\MyVeras\MyVeras.Models\obj\Release\net48\MyVeras.Models.pdb
