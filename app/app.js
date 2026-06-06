@@ -182,14 +182,116 @@ const tasks = [
 ];
 
 const catalogItems = [
-  ["Шкаф архивный металлический", "Мебель", "v1.4", "428 скачиваний"],
-  ["Дверь техническая EI60", "Двери", "v2.1", "96 скачиваний"],
-  ["Светильник линейный подвесной", "Освещение", "v1.2", "214 скачиваний"],
-  ["Диффузор круглый D100-D250", "ОВиК", "v3.0", "182 скачивания"],
+  {
+    id: "CAT-0148",
+    name: "Шкаф архивный металлический",
+    category: "Мебель",
+    version: "v1.4",
+    status: "Актуально",
+    statusKind: "ready",
+    downloads: "428 скачиваний",
+    updated: "24 мая",
+    author: "BIM Library",
+    size: "1.8 MB",
+    revit: "2023-2025",
+    tags: ["мебель", "металл", "типоразмеры"],
+    description: "Параметрическое семейство архивного шкафа с материалами корпуса, фасада и ручек.",
+    parameters: ["ADSK_Наименование", "ADSK_Код изделия", "Ширина", "Высота", "Глубина", "Материал корпуса"],
+    versions: [
+      ["v1.4", "Актуальная", "Исправлены материалы фасадов"],
+      ["v1.3", "Архив", "Добавлены 6 типоразмеров"],
+      ["v1.2", "Архив", "Первичная приемка"],
+    ],
+    checks: [
+      ["pass", "ФОП", "Все обязательные shared parameters найдены"],
+      ["pass", "Типы", "6 типоразмеров опубликованы"],
+      ["pass", "Размер файла", "1.8 MB, в пределах нормы"],
+    ],
+  },
+  {
+    id: "CAT-0162",
+    name: "Дверь техническая EI60",
+    category: "Двери",
+    version: "v2.1",
+    status: "Требует ревизии",
+    statusKind: "review",
+    downloads: "96 скачиваний",
+    updated: "19 мая",
+    author: "Fire Safety Pack",
+    size: "3.4 MB",
+    revit: "2024-2025",
+    tags: ["двери", "EI60", "огнестойкость"],
+    description: "Техническая дверь с наборами типоразмеров, направлением открывания и параметрами огнестойкости.",
+    parameters: ["ADSK_Класс огнестойкости", "Ширина проема", "Высота проема", "Толщина полотна"],
+    versions: [
+      ["v2.1", "Актуальная", "Обновлены типы EI60"],
+      ["v2.0", "Архив", "Перевод на DoorPack_2026"],
+      ["v1.8", "Архив", "Исправлены классификаторы"],
+    ],
+    checks: [
+      ["warn", "Классификатор", "4 типа требуют проверки кода изделия"],
+      ["pass", "Категория", "Doors совпадает"],
+      ["pass", "Размер файла", "3.4 MB, в пределах нормы"],
+    ],
+  },
+  {
+    id: "CAT-0190",
+    name: "Светильник линейный подвесной",
+    category: "Освещение",
+    version: "v1.2",
+    status: "Актуально",
+    statusKind: "ready",
+    downloads: "214 скачиваний",
+    updated: "8 мая",
+    author: "MEP Library",
+    size: "2.2 MB",
+    revit: "2023-2025",
+    tags: ["освещение", "MEP", "IES"],
+    description: "Линейный подвесной светильник с мощностью, световым потоком и типоразмерами длины.",
+    parameters: ["Мощность", "Световой поток", "Длина", "IES файл"],
+    versions: [
+      ["v1.2", "Актуальная", "Добавлены IES references"],
+      ["v1.1", "Архив", "Обновлена таблица мощностей"],
+      ["v1.0", "Архив", "Публикация MVP"],
+    ],
+    checks: [
+      ["pass", "Параметры", "9 обязательных параметров найдены"],
+      ["warn", "IES", "2 типа требуют сверки фотометрии"],
+      ["pass", "Категория", "Lighting Fixtures совпадает"],
+    ],
+  },
+  {
+    id: "CAT-0215",
+    name: "Диффузор круглый D100-D250",
+    category: "ОВиК",
+    version: "v3.0",
+    status: "Устаревает",
+    statusKind: "blocked",
+    downloads: "182 скачивания",
+    updated: "2 апр",
+    author: "HVAC Library",
+    size: "1.2 MB",
+    revit: "2022-2024",
+    tags: ["ОВиК", "диффузор", "воздух"],
+    description: "Круглый воздухораспределитель с диаметрами D100-D250 и параметрами расхода воздуха.",
+    parameters: ["Диаметр", "Расход воздуха", "Материал", "ADSK_Наименование"],
+    versions: [
+      ["v3.0", "Актуальная", "Старая версия ФОП"],
+      ["v2.8", "Архив", "Добавлен D250"],
+      ["v2.4", "Архив", "Исправлены материалы"],
+    ],
+    checks: [
+      ["fail", "ФОП", "Нужна миграция на HVAC_2026"],
+      ["warn", "Совместимость", "Нет версии для Revit 2025"],
+      ["pass", "Типы", "11 типоразмеров опубликованы"],
+    ],
+  },
 ];
 
 const state = {
+  view: "tasks",
   selectedTaskId: tasks[0].id,
+  selectedCatalogId: catalogItems[0].id,
   selectedTab: "sources",
   filter: "all",
   search: "",
@@ -204,9 +306,159 @@ const statusClass = {
 
 const taskList = document.querySelector("#taskList");
 const tabContent = document.querySelector("#tabContent");
+const workspace = document.querySelector(".workspace");
 
 function selectedTask() {
   return tasks.find((task) => task.id === state.selectedTaskId) || tasks[0];
+}
+
+function selectedCatalogItem() {
+  return catalogItems.find((item) => item.id === state.selectedCatalogId) || catalogItems[0];
+}
+
+function renderApp() {
+  document
+    .querySelectorAll("[data-view]")
+    .forEach((button) => button.classList.toggle("is-active", button.dataset.view === state.view));
+
+  if (state.view === "catalog") {
+    renderCatalogWorkspace();
+  } else {
+    renderTaskWorkspace();
+  }
+
+  refreshIcons();
+}
+
+function renderTaskWorkspace() {
+  workspace.innerHTML = `
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Разработка семейств</p>
+        <h1>Реестр заданий</h1>
+      </div>
+      <div class="topbar-actions">
+        <label class="search-field">
+          <i data-lucide="search"></i>
+          <input id="globalSearch" type="search" placeholder="Поиск задания, семейства, параметра" value="${state.search}" />
+        </label>
+        <button class="icon-button" type="button" title="Уведомления" aria-label="Уведомления">
+          <i data-lucide="bell"></i>
+        </button>
+        <button class="primary-button" type="button">
+          <i data-lucide="plus"></i>
+          <span>Задание</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="metrics-grid" aria-label="Сводка">
+      <article class="metric">
+        <div class="metric-label">Готово к разработке</div>
+        <div class="metric-value">9</div>
+        <div class="metric-trend positive">+3 за неделю</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">На AI-разборе</div>
+        <div class="metric-value">6</div>
+        <div class="metric-trend neutral">среднее 4 мин</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">На проверке</div>
+        <div class="metric-value">12</div>
+        <div class="metric-trend warning">5 с замечаниями</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">В каталоге</div>
+        <div class="metric-value">428</div>
+        <div class="metric-trend positive">94% актуальны</div>
+      </article>
+    </section>
+
+    <section class="work-grid">
+      <section class="task-column" aria-label="Список заданий">
+        <div class="section-head">
+          <h2>Очередь</h2>
+          <div class="segmented" role="group" aria-label="Фильтр статуса">
+            <button class="${state.filter === "all" ? "is-selected" : ""}" type="button" data-filter="all">Все</button>
+            <button class="${state.filter === "in_development" ? "is-selected" : ""}" type="button" data-filter="in_development">В работе</button>
+            <button class="${state.filter === "review" ? "is-selected" : ""}" type="button" data-filter="review">Проверка</button>
+          </div>
+        </div>
+        <div id="taskList" class="task-list"></div>
+      </section>
+
+      <section class="detail-column" aria-label="Карточка задания">
+        <div class="detail-header">
+          <div>
+            <div id="taskNumber" class="record-number"></div>
+            <h2 id="taskTitle"></h2>
+          </div>
+          <div class="detail-actions">
+            <span id="taskStatus" class="status-pill"></span>
+            <button class="icon-button" type="button" title="Открыть в Revit" aria-label="Открыть в Revit">
+              <i data-lucide="external-link"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-meta">
+          <div>
+            <span>Категория</span>
+            <strong id="taskCategory"></strong>
+          </div>
+          <div>
+            <span>Исполнитель</span>
+            <strong id="taskOwner"></strong>
+          </div>
+          <div>
+            <span>Срок</span>
+            <strong id="taskDue"></strong>
+          </div>
+          <div>
+            <span>Версия ФОП</span>
+            <strong id="taskFop"></strong>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Данные задания">
+          <button class="${state.selectedTab === "sources" ? "is-active" : ""}" type="button" data-tab="sources">Исходники</button>
+          <button class="${state.selectedTab === "spec" ? "is-active" : ""}" type="button" data-tab="spec">Спецификация</button>
+          <button class="${state.selectedTab === "checks" ? "is-active" : ""}" type="button" data-tab="checks">Проверка</button>
+          <button class="${state.selectedTab === "catalog" ? "is-active" : ""}" type="button" data-tab="catalog">Каталог</button>
+        </div>
+
+        <div id="tabContent" class="tab-content"></div>
+      </section>
+
+      <aside class="inspector" aria-label="AI-инспектор">
+        <div class="inspector-head">
+          <div>
+            <p class="eyebrow">AI-инспектор</p>
+            <h2 id="aiScore"></h2>
+          </div>
+          <button class="icon-button" type="button" title="Обновить разбор" aria-label="Обновить разбор">
+            <i data-lucide="refresh-cw"></i>
+          </button>
+        </div>
+
+        <div class="ai-summary" id="aiSummary"></div>
+
+        <div class="inspector-block">
+          <h3>Риски</h3>
+          <div id="riskList" class="risk-list"></div>
+        </div>
+
+        <div class="inspector-block">
+          <h3>Следующие действия</h3>
+          <div id="nextActions" class="action-list"></div>
+        </div>
+      </aside>
+    </section>
+  `;
+
+  renderTasks();
+  renderDetails();
 }
 
 function renderTasks() {
@@ -223,7 +475,7 @@ function renderTasks() {
     return matchesFilter && matchesSearch;
   });
 
-  taskList.innerHTML = filtered
+  document.querySelector("#taskList").innerHTML = filtered
     .map(
       (task) => `
       <button class="task-card ${task.id === state.selectedTaskId ? "is-active" : ""}" type="button" data-task-id="${task.id}">
@@ -242,7 +494,7 @@ function renderTasks() {
     .join("");
 
   if (!filtered.length) {
-    taskList.innerHTML = `<div class="empty-state">Ничего не найдено</div>`;
+    document.querySelector("#taskList").innerHTML = `<div class="empty-state">Ничего не найдено</div>`;
   }
 }
 
@@ -309,7 +561,7 @@ function renderTab(task) {
     catalog: renderCatalog,
   };
 
-  tabContent.innerHTML = templates[state.selectedTab](task);
+  document.querySelector("#tabContent").innerHTML = templates[state.selectedTab](task);
 }
 
 function renderSources(task) {
@@ -477,7 +729,7 @@ function renderCatalog(task) {
         <div class="catalog-list">
           ${catalogItems
             .map(
-              ([name, category, version, downloads]) => `
+              ({ name, category, version, downloads }) => `
             <div class="catalog-row">
               <div class="catalog-main">
                 <strong>${name}</strong>
@@ -503,7 +755,262 @@ function refreshIcons() {
   }
 }
 
+function renderCatalogWorkspace() {
+  const item = selectedCatalogItem();
+  const query = state.search.trim().toLowerCase();
+  const filtered = catalogItems.filter((catalogItem) =>
+    `${catalogItem.id} ${catalogItem.name} ${catalogItem.category} ${catalogItem.tags.join(" ")}`
+      .toLowerCase()
+      .includes(query),
+  );
+
+  workspace.innerHTML = `
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Внутренняя библиотека</p>
+        <h1>Каталог семейств</h1>
+      </div>
+      <div class="topbar-actions">
+        <label class="search-field">
+          <i data-lucide="search"></i>
+          <input id="globalSearch" type="search" placeholder="Поиск семейства, категории, тега" value="${state.search}" />
+        </label>
+        <button class="icon-button" type="button" title="Импорт RFA" aria-label="Импорт RFA">
+          <i data-lucide="upload"></i>
+        </button>
+        <button class="primary-button" type="button">
+          <i data-lucide="download"></i>
+          <span>Скачать</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="metrics-grid" aria-label="Сводка каталога">
+      <article class="metric">
+        <div class="metric-label">Опубликовано</div>
+        <div class="metric-value">428</div>
+        <div class="metric-trend positive">94% актуальны</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">Требуют ревизии</div>
+        <div class="metric-value">26</div>
+        <div class="metric-trend warning">после смены ФОП</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">Категории</div>
+        <div class="metric-value">18</div>
+        <div class="metric-trend neutral">MEP, двери, мебель</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">Скачивания</div>
+        <div class="metric-value">3.8k</div>
+        <div class="metric-trend positive">за квартал</div>
+      </article>
+    </section>
+
+    <section class="catalog-work-grid">
+      <section class="task-column" aria-label="Список семейств">
+        <div class="section-head">
+          <h2>Семейства</h2>
+          <div class="segmented" role="group" aria-label="Фильтр каталога">
+            <button class="is-selected" type="button">Все</button>
+            <button type="button">Актуальные</button>
+            <button type="button">Ревизия</button>
+          </div>
+        </div>
+        <div class="task-list">
+          ${
+            filtered.length
+              ? filtered
+                  .map(
+                    (catalogItem) => `
+            <button class="catalog-card ${catalogItem.id === item.id ? "is-active" : ""}" type="button" data-catalog-id="${catalogItem.id}">
+              <div class="task-card-top">
+                <span class="task-code">${catalogItem.id}</span>
+                <span class="badge ${catalogItem.statusKind}">${catalogItem.status}</span>
+              </div>
+              <div class="task-card-title">${catalogItem.name}</div>
+              <div class="task-card-meta">
+                <span>${catalogItem.category}</span>
+                <span>${catalogItem.version}</span>
+              </div>
+            </button>
+          `,
+                  )
+                  .join("")
+              : `<div class="empty-state">Ничего не найдено</div>`
+          }
+        </div>
+      </section>
+
+      <section class="detail-column" aria-label="Карточка семейства">
+        <div class="detail-header">
+          <div>
+            <div class="record-number">${item.id}</div>
+            <h2>${item.name}</h2>
+          </div>
+          <div class="detail-actions">
+            <span class="status-pill ${item.statusKind}">${item.status}</span>
+            <button class="icon-button" type="button" title="Скачать RFA" aria-label="Скачать RFA">
+              <i data-lucide="download"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-meta">
+          <div>
+            <span>Категория</span>
+            <strong>${item.category}</strong>
+          </div>
+          <div>
+            <span>Версия</span>
+            <strong>${item.version}</strong>
+          </div>
+          <div>
+            <span>Revit</span>
+            <strong>${item.revit}</strong>
+          </div>
+          <div>
+            <span>Размер</span>
+            <strong>${item.size}</strong>
+          </div>
+        </div>
+
+        <div class="catalog-detail">
+          <section class="content-panel full">
+            <h3>Описание</h3>
+            <p class="body-copy">${item.description}</p>
+            <div class="tag-row">
+              ${item.tags.map((tag) => `<span>${tag}</span>`).join("")}
+            </div>
+          </section>
+
+          <section class="content-panel">
+            <h3>Параметры</h3>
+            <div class="parameter-list">
+              ${item.parameters
+                .map(
+                  (parameter) => `
+                <div class="source-row">
+                  <div class="source-row-main">
+                    <strong>${parameter}</strong>
+                    <span>Доступен в текущей версии</span>
+                  </div>
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+          </section>
+
+          <section class="content-panel">
+            <h3>Проверки</h3>
+            <div class="check-list">
+              ${item.checks
+                .map(
+                  ([stateName, title, text]) => `
+                <div class="check-row">
+                  <span class="check-icon ${stateName}">
+                    <i data-lucide="${stateName === "pass" ? "check" : stateName === "warn" ? "triangle-alert" : "x"}"></i>
+                  </span>
+                  <div class="check-copy">
+                    <strong>${title}</strong>
+                    <span>${text}</span>
+                  </div>
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+          </section>
+
+          <section class="content-panel full">
+            <h3>Версии</h3>
+            <div class="type-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Версия</th>
+                    <th>Статус</th>
+                    <th>Изменения</th>
+                    <th>Действие</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${item.versions
+                    .map(
+                      ([version, status, note]) => `
+                    <tr>
+                      <td>${version}</td>
+                      <td>${status}</td>
+                      <td>${note}</td>
+                      <td><button class="compact-button" type="button"><i data-lucide="download"></i><span>RFA</span></button></td>
+                    </tr>
+                  `,
+                    )
+                    .join("")}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <aside class="inspector" aria-label="Каталог-инспектор">
+        <div class="inspector-head">
+          <div>
+            <p class="eyebrow">Каталог</p>
+            <h2>${item.downloads}</h2>
+          </div>
+          <button class="icon-button" type="button" title="Создать задание на обновление" aria-label="Создать задание на обновление">
+            <i data-lucide="clipboard-plus"></i>
+          </button>
+        </div>
+
+        <div class="ai-summary">
+          Последнее обновление: ${item.updated}. Владелец: ${item.author}. Для изменения опубликованного семейства создается отдельное задание с новой приемкой.
+        </div>
+
+        <div class="inspector-block">
+          <h3>Действия</h3>
+          <div class="action-list">
+            <button class="action-item" type="button">
+              <span class="action-icon"><i data-lucide="download"></i></span>
+              <div>
+                <strong>Скачать актуальную RFA</strong>
+                <span>${item.version} · ${item.size}</span>
+              </div>
+            </button>
+            <button class="action-item" type="button">
+              <span class="action-icon"><i data-lucide="git-compare-arrows"></i></span>
+              <div>
+                <strong>Сравнить версии</strong>
+                <span>Проверить изменения перед обновлением</span>
+              </div>
+            </button>
+            <button class="action-item" type="button">
+              <span class="action-icon"><i data-lucide="clipboard-plus"></i></span>
+              <div>
+                <strong>Задание на обновление</strong>
+                <span>Создать task из карточки каталога</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  `;
+}
+
 document.addEventListener("click", (event) => {
+  const viewButton = event.target.closest("[data-view]");
+  if (viewButton) {
+    state.view = viewButton.dataset.view;
+    state.search = "";
+    renderApp();
+    return;
+  }
+
   const taskButton = event.target.closest("[data-task-id]");
   if (taskButton) {
     state.selectedTaskId = taskButton.dataset.taskId;
@@ -521,6 +1028,13 @@ document.addEventListener("click", (event) => {
     refreshIcons();
   }
 
+  const catalogButton = event.target.closest("[data-catalog-id]");
+  if (catalogButton) {
+    state.selectedCatalogId = catalogButton.dataset.catalogId;
+    renderCatalogWorkspace();
+    refreshIcons();
+  }
+
   const filterButton = event.target.closest("[data-filter]");
   if (filterButton) {
     state.filter = filterButton.dataset.filter;
@@ -531,10 +1045,17 @@ document.addEventListener("click", (event) => {
   }
 });
 
-document.querySelector("#globalSearch").addEventListener("input", (event) => {
+document.addEventListener("input", (event) => {
+  if (event.target.id !== "globalSearch") {
+    return;
+  }
+
   state.search = event.target.value;
-  renderTasks();
+  if (state.view === "catalog") {
+    renderCatalogWorkspace();
+  } else {
+    renderTasks();
+  }
 });
 
-renderTasks();
-renderDetails();
+renderApp();
