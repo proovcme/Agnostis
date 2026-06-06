@@ -30,6 +30,7 @@ Agnostis — AI-платформа для управления разработ�
 - [Technical Stack](docs/technical-stack.md)
 - [OpenRouter Integration](docs/openrouter.md)
 - [Learning Loop](docs/learning-loop.md)
+- [BIM RFA RAG](docs/bim-rfa-rag.md)
 - [Архитектура системы](docs/system-architecture.md)
 - [Доменная модель](docs/domain-model.md)
 - [Backlog](docs/backlog.md)
