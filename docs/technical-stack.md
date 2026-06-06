@@ -28,6 +28,7 @@
 
 - Backend-owned orchestration.
 - OpenRouter as the first provider.
+- LES as the retrieval/local knowledge runtime.
 - AI не вызывается напрямую из Revit-плагина.
 - AI возвращает черновик спецификации, конфликты и вопросы, но не выполняет Revit-действия.
 
@@ -47,6 +48,7 @@ MVP разделяется на три независимых контура:
 - OpenAPI contract находится в [`openapi/agnostis-mvp.yaml`](../openapi/agnostis-mvp.yaml).
 - Документированный API contract находится в [`docs/mvp-api-contract.md`](mvp-api-contract.md).
 - OpenRouter integration notes находятся в [`docs/openrouter.md`](openrouter.md).
+- LES integration notes находятся в [`docs/les-integration.md`](les-integration.md).
 - Windows build/test host доступен по SSH alias `legion`.
 
 ## Открытые технические решения

@@ -29,6 +29,7 @@ Agnostis — AI-платформа для управления разработ�
 - [Revit Add-In MVP](docs/revit-addin-mvp.md)
 - [Technical Stack](docs/technical-stack.md)
 - [OpenRouter Integration](docs/openrouter.md)
+- [LES Integration](docs/les-integration.md)
 - [Learning Loop](docs/learning-loop.md)
 - [BIM RFA RAG](docs/bim-rfa-rag.md)
 - [Архитектура системы](docs/system-architecture.md)

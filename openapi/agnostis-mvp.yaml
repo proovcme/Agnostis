@@ -29,6 +29,19 @@ paths:
                 $ref: "#/components/schemas/HealthResponse"
         "429":
           $ref: "#/components/responses/TooManyRequests"
+  /api/integrations/les/status:
+    get:
+      summary: Check LES integration status
+      operationId: getLesIntegrationStatus
+      responses:
+        "200":
+          description: LES status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LesStatusResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /api/tasks:
     get:
       summary: List family development tasks
@@ -137,6 +150,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AIAnalysisResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/tasks/{taskId}/rag-context:
+    post:
+      summary: Retrieve LES RAG context for task
+      operationId: getTaskRagContext
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LesRagContextRequest"
+      responses:
+        "200":
+          description: LES RAG context result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LesRagContextResult"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -388,6 +424,34 @@ components:
             details:
               type: object
               additionalProperties: true
+    LesStatusResponse:
+      type: object
+      required:
+        - status
+        - baseUrl
+        - httpStatus
+        - checkedAt
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - unhealthy
+            - unreachable
+            - timeout
+        baseUrl:
+          type: string
+        httpStatus:
+          type: integer
+        health:
+          type:
+            - object
+            - array
+            - string
+            - "null"
+        checkedAt:
+          type: string
+          format: date-time
     TaskStatus:
       type: string
       enum:
@@ -568,6 +632,67 @@ components:
           type: array
           items:
             type: string
+    LesRagContextRequest:
+      type: object
+      properties:
+        question:
+          type:
+            - string
+            - "null"
+        datasetFilter:
+          type:
+            - string
+            - "null"
+          default: CAD_BIM
+        validationEnabled:
+          type:
+            - boolean
+            - "null"
+        rerankerEnabled:
+          type:
+            - boolean
+            - "null"
+        semanticCacheEnabled:
+          type:
+            - boolean
+            - "null"
+    LesRagContextResult:
+      type: object
+      required:
+        - status
+        - taskId
+        - datasetFilter
+        - question
+        - lesBaseUrl
+        - httpStatus
+        - createdAt
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - upstream_error
+            - unreachable
+            - timeout
+        taskId:
+          type: string
+        datasetFilter:
+          type: string
+        question:
+          type: string
+        lesBaseUrl:
+          type: string
+        httpStatus:
+          type: integer
+        response:
+          type:
+            - object
+            - array
+            - string
+            - "null"
+        createdAt:
+          type: string
+          format: date-time
     FamilySpecification:
       type: object
       required:

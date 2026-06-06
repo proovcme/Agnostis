@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,7 @@ builder.Services.AddCors(options =>
             .AllowAnyOrigin();
     });
 });
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -20,6 +23,46 @@ app.UseCors();
 var store = SeedData.Create();
 
 app.MapGet("/health", () => Results.Ok(new HealthResponse("ok", DateTimeOffset.UtcNow)));
+
+app.MapGet("/api/integrations/les/status", async (IHttpClientFactory httpClientFactory, IConfiguration configuration) =>
+{
+    var options = LesOptions.FromConfiguration(configuration);
+    using var client = httpClientFactory.CreateClient();
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+    using var request = CreateLesRequest(HttpMethod.Get, options, "/api/health");
+
+    try
+    {
+        using var response = await client.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
+        var parsed = TryParseJson(body);
+
+        return Results.Ok(new LesStatusResponse(
+            Status: response.IsSuccessStatusCode ? "ok" : "unhealthy",
+            BaseUrl: options.BaseUrl,
+            HttpStatus: (int)response.StatusCode,
+            Health: parsed,
+            CheckedAt: DateTimeOffset.UtcNow));
+    }
+    catch (HttpRequestException error)
+    {
+        return Results.Ok(new LesStatusResponse(
+            Status: "unreachable",
+            BaseUrl: options.BaseUrl,
+            HttpStatus: 0,
+            Health: new JsonObject { ["error"] = error.GetType().Name },
+            CheckedAt: DateTimeOffset.UtcNow));
+    }
+    catch (TaskCanceledException)
+    {
+        return Results.Ok(new LesStatusResponse(
+            Status: "timeout",
+            BaseUrl: options.BaseUrl,
+            HttpStatus: 0,
+            Health: CreateLesTimeoutBody(options.TimeoutSeconds),
+            CheckedAt: DateTimeOffset.UtcNow));
+    }
+});
 
 app.MapGet("/api/tasks", (string? status) =>
 {
@@ -116,6 +159,77 @@ app.MapPost("/api/tasks/{taskId}/ai-analysis", (string taskId, AIAnalysisRequest
         [
             "This MVP skeleton does not call OpenRouter yet. It reserves the endpoint and response contract."
         ]));
+});
+
+app.MapPost("/api/tasks/{taskId}/rag-context", async (
+    string taskId,
+    LesRagContextRequest request,
+    IHttpClientFactory httpClientFactory,
+    IConfiguration configuration) =>
+{
+    if (!store.Tasks.TryGetValue(taskId, out var task))
+    {
+        return Results.NotFound(ApiError.Create("task_not_found", "Task was not found."));
+    }
+
+    var specification = store.Specifications.GetValueOrDefault(taskId);
+    var question = string.IsNullOrWhiteSpace(request.Question)
+        ? BuildDefaultLesQuestion(task, specification)
+        : request.Question.Trim();
+
+    var options = LesOptions.FromConfiguration(configuration);
+    using var client = httpClientFactory.CreateClient();
+    client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+    using var lesRequest = CreateLesRequest(HttpMethod.Post, options, "/api/chat");
+    lesRequest.Content = JsonContent.Create(new
+    {
+        question,
+        dataset_filter = request.DatasetFilter ?? "CAD_BIM",
+        validation_enabled = request.ValidationEnabled,
+        reranker_enabled = request.RerankerEnabled,
+        semantic_cache_enabled = request.SemanticCacheEnabled
+    });
+
+    try
+    {
+        using var response = await client.SendAsync(lesRequest);
+        var body = await response.Content.ReadAsStringAsync();
+        var parsed = TryParseJson(body);
+
+        return Results.Ok(new LesRagContextResult(
+            Status: response.IsSuccessStatusCode ? "ok" : "upstream_error",
+            TaskId: taskId,
+            DatasetFilter: request.DatasetFilter ?? "CAD_BIM",
+            Question: question,
+            LesBaseUrl: options.BaseUrl,
+            HttpStatus: (int)response.StatusCode,
+            Response: parsed,
+            CreatedAt: DateTimeOffset.UtcNow));
+    }
+    catch (HttpRequestException error)
+    {
+        return Results.Ok(new LesRagContextResult(
+            Status: "unreachable",
+            TaskId: taskId,
+            DatasetFilter: request.DatasetFilter ?? "CAD_BIM",
+            Question: question,
+            LesBaseUrl: options.BaseUrl,
+            HttpStatus: 0,
+            Response: new JsonObject { ["error"] = error.GetType().Name },
+            CreatedAt: DateTimeOffset.UtcNow));
+    }
+    catch (TaskCanceledException)
+    {
+        return Results.Ok(new LesRagContextResult(
+            Status: "timeout",
+            TaskId: taskId,
+            DatasetFilter: request.DatasetFilter ?? "CAD_BIM",
+            Question: question,
+            LesBaseUrl: options.BaseUrl,
+            HttpStatus: 0,
+            Response: CreateLesTimeoutBody(options.TimeoutSeconds),
+            CreatedAt: DateTimeOffset.UtcNow));
+    }
 });
 
 app.MapPut("/api/tasks/{taskId}/specification", (string taskId, FamilySpecification specification) =>
@@ -304,6 +418,56 @@ app.MapPost("/api/catalog/{catalogItemId}/update-task", (string catalogItemId, C
 
 app.Run();
 
+static HttpRequestMessage CreateLesRequest(HttpMethod method, LesOptions options, string path)
+{
+    var request = new HttpRequestMessage(method, new Uri(new Uri(options.BaseUrl), path));
+    if (!string.IsNullOrWhiteSpace(options.ApiKey))
+    {
+        request.Headers.TryAddWithoutValidation("X-API-Key", options.ApiKey);
+    }
+
+    return request;
+}
+
+static JsonNode? TryParseJson(string body)
+{
+    if (string.IsNullOrWhiteSpace(body))
+    {
+        return null;
+    }
+
+    try
+    {
+        return JsonNode.Parse(body);
+    }
+    catch
+    {
+        return new JsonObject { ["raw"] = body };
+    }
+}
+
+static JsonObject CreateLesTimeoutBody(int timeoutSeconds)
+{
+    return new JsonObject
+    {
+        ["error"] = "timeout",
+        ["timeoutSeconds"] = timeoutSeconds
+    };
+}
+
+static string BuildDefaultLesQuestion(FamilyTask task, FamilySpecification? specification)
+{
+    var parameterNames = specification is null
+        ? "нет утвержденной спецификации"
+        : string.Join(", ", specification.Parameters.Select(parameter => parameter.Name));
+
+    return
+        $"Найди похожие BIM/RFA/CAD_BIM кейсы и типовые ошибки для разработки Revit-семейства. " +
+        $"Задание: {task.Number} {task.Title}. Категория: {task.RevitCategory ?? "не указана"}. " +
+        $"Параметры спецификации: {parameterNames}. " +
+        "Нужны релевантные образцы, параметры, risks и checklist для приемки.";
+}
+
 static class TaskStatuses
 {
     public const string Draft = "draft";
@@ -318,6 +482,37 @@ static class SpecificationStatuses
 }
 
 record HealthResponse(string Status, DateTimeOffset CheckedAt);
+
+record LesOptions(string BaseUrl, string? ApiKey, int TimeoutSeconds)
+{
+    public static LesOptions FromConfiguration(IConfiguration configuration)
+    {
+        var baseUrl = configuration["Les:BaseUrl"] ?? Environment.GetEnvironmentVariable("LES_BASE_URL") ?? "http://127.0.0.1:8050";
+        var apiKey = configuration["Les:ApiKey"] ?? Environment.GetEnvironmentVariable("LES_API_KEY");
+        var timeoutSeconds = ParseTimeoutSeconds(
+            configuration["Les:TimeoutSeconds"]
+            ?? Environment.GetEnvironmentVariable("LES_TIMEOUT_SECONDS"));
+
+        return new LesOptions(baseUrl.TrimEnd('/') + "/", apiKey, timeoutSeconds);
+    }
+
+    private static int ParseTimeoutSeconds(string? value)
+    {
+        if (!int.TryParse(value, out var timeoutSeconds))
+        {
+            return 120;
+        }
+
+        return Math.Clamp(timeoutSeconds, 1, 600);
+    }
+}
+
+record LesStatusResponse(
+    string Status,
+    string BaseUrl,
+    int HttpStatus,
+    JsonNode? Health,
+    DateTimeOffset CheckedAt);
 
 record ApiError(ApiErrorBody Error)
 {
@@ -386,6 +581,23 @@ record AIAnalysisResult(
     string Status,
     FamilySpecification Specification,
     IReadOnlyList<string> Warnings);
+
+record LesRagContextRequest(
+    string? Question,
+    string? DatasetFilter,
+    bool? ValidationEnabled,
+    bool? RerankerEnabled,
+    bool? SemanticCacheEnabled);
+
+record LesRagContextResult(
+    string Status,
+    string TaskId,
+    string DatasetFilter,
+    string Question,
+    string LesBaseUrl,
+    int HttpStatus,
+    JsonNode? Response,
+    DateTimeOffset CreatedAt);
 
 record FamilySpecification(
     string Id,
