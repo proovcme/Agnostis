@@ -75,6 +75,24 @@ Skill фиксирует рабочий контекст АРТЕЛЬ, связ�
 
 ## Проверка прототипа локально
 
+Рекомендуемый ручной стенд запускается через backend, чтобы UI сразу проверял API и LES:
+
+```bash
+LES_BASE_URL=http://127.0.0.1:8050 \
+LES_TIMEOUT_SECONDS=20 \
+dotnet run --project backend/Agnostis.Api --urls http://127.0.0.1:5057
+```
+
+Открыть:
+
+```text
+http://127.0.0.1:5057/
+```
+
+Подробный сценарий: [RUNBOOK_HAND_TEST.md](RUNBOOK_HAND_TEST.md).
+
+Статический прототип без backend все еще можно открыть отдельно:
+
 ```bash
 python3 -m http.server 4173
 ```
