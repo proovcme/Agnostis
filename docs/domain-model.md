@@ -196,6 +196,26 @@
 - `created_at`
 - `updated_at`
 
+### FamilyLearningCase
+
+Связка задания, спецификации, результата и приемки, используемая для улучшения следующих разработок.
+
+Поля:
+
+- `id`
+- `task_id`
+- `catalog_item_id`
+- `accepted_version_id`
+- `source_summary`
+- `approved_specification_id`
+- `validation_report_id`
+- `human_corrections`
+- `archetype`
+- `recipe_id`
+- `quality_score`
+- `reuse_count`
+- `created_at`
+
 ## Схема связей
 
 ```mermaid
@@ -210,4 +230,6 @@ erDiagram
     FamilyVersion ||--o{ ValidationReport : checked_by
     ValidationReport ||--o{ ValidationIssue : contains
     FamilyCatalogItem ||--o{ FamilyVersion : has
+    FamilyTask ||--o| FamilyLearningCase : produces
+    FamilyCatalogItem ||--o{ FamilyLearningCase : contributes
 ```
