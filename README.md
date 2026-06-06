@@ -27,6 +27,8 @@ Agnostis — AI-платформа для управления разработ�
 - [MVP User Stories](docs/mvp-user-stories.md)
 - [MVP API Contract](docs/mvp-api-contract.md)
 - [Revit Add-In MVP](docs/revit-addin-mvp.md)
+- [Technical Stack](docs/technical-stack.md)
+- [OpenRouter Integration](docs/openrouter.md)
 - [Архитектура системы](docs/system-architecture.md)
 - [Доменная модель](docs/domain-model.md)
 - [Backlog](docs/backlog.md)
@@ -37,6 +39,8 @@ Agnostis — AI-платформа для управления разработ�
 
 - `app/` — статический прототип веб-интерфейса Agnostis.
 - `docs/` — продуктовая и техническая документация.
+- `backend/Agnostis.Api/` — skeleton backend API для MVP.
+- `openapi/agnostis-mvp.yaml` — начальная OpenAPI-схема MVP.
 - `.github/workflows/pages.yml` — публикация макета на GitHub Pages.
 - `MyVeras.*`, `Dist/`, `MyVeras.sln` — существующая кодовая база Revit-плагина, сохраненная как legacy/исходный материал. Сейчас она не является основным описанием Agnostis.
 
