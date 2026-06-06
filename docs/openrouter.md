@@ -2,7 +2,7 @@
 
 ## Decision
 
-Agnostis MVP uses OpenRouter as the first AI provider for task analysis and specification drafting.
+АРТЕЛЬ MVP uses OpenRouter as the first AI provider for task analysis and specification drafting.
 
 OpenRouter is treated as a backend dependency. The Revit add-in must not call OpenRouter directly.
 
@@ -48,7 +48,7 @@ OPENROUTER_API_KEY
       "ApiKeyEnvironmentVariable": "OPENROUTER_API_KEY",
       "DefaultModel": "<openrouter-model-id>",
       "HttpReferer": "https://proovcme.github.io/Agnostis/",
-      "AppTitle": "Agnostis"
+      "AppTitle": "ARTEL"
     }
   }
 }

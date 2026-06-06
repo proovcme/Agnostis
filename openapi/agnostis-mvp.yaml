@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Agnostis MVP API
+  title: АРТЕЛЬ MVP API
   version: 0.1.0
-  summary: API contract for Agnostis MVP.
+  summary: API contract for АРТЕЛЬ MVP.
   description: >
     MVP API for managing Revit family development tasks, specifications,
     Revit add-in packages, validation reports, submissions, and catalog items.

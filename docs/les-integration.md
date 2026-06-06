@@ -2,9 +2,9 @@
 
 ## Decision
 
-Agnostis should use LES as the retrieval and local knowledge layer.
+АРТЕЛЬ should use LES as the retrieval and local knowledge layer.
 
-Agnostis remains responsible for:
+АРТЕЛЬ remains responsible for:
 
 - tasks;
 - family specifications;
@@ -24,12 +24,12 @@ LES remains responsible for:
 
 ## Why
 
-Building another RAG layer inside Agnostis would duplicate LES.
+Building another RAG layer inside АРТЕЛЬ would duplicate LES.
 
 The correct architecture is:
 
 ```text
-Agnostis product workflow + LES retrieval/runtime
+АРТЕЛЬ product workflow + LES retrieval/runtime
 ```
 
 ## LES runtime baseline
@@ -44,7 +44,7 @@ Checked on 2026-06-06:
 - `points_match_sqlite_chunks=true`
 - active CAD/BIM dataset: `CAD_BIM_Index`
 
-## Current endpoints used by Agnostis
+## Current endpoints used by АРТЕЛЬ
 
 ### LES status
 
@@ -52,7 +52,7 @@ Checked on 2026-06-06:
 GET /api/integrations/les/status
 ```
 
-Agnostis backend calls:
+АРТЕЛЬ backend calls:
 
 ```http
 GET {LES_BASE_URL}/api/health
@@ -64,7 +64,7 @@ GET {LES_BASE_URL}/api/health
 POST /api/tasks/{taskId}/rag-context
 ```
 
-Agnostis backend calls:
+АРТЕЛЬ backend calls:
 
 ```http
 POST {LES_BASE_URL}/api/search
@@ -105,7 +105,7 @@ Important: raw RVT/RFA/DWG/IFC should be exported to canonical JSON/JSONL before
 
 ## Relevance to RFA generation
 
-For Agnostis, LES should index:
+For АРТЕЛЬ, LES should index:
 
 - accepted family metadata;
 - family specifications;
@@ -115,7 +115,7 @@ For Agnostis, LES should index:
 - recipes and archetypes;
 - CAD/BIM object graphs where relevant.
 
-This gives Agnostis retrieval over:
+This gives АРТЕЛЬ retrieval over:
 
 - similar families;
 - similar tasks;
@@ -151,7 +151,7 @@ For testing from Windows Legion over ZeroTier:
 LES_BASE_URL=http://10.195.146.98:8050
 ```
 
-`LES_TIMEOUT_SECONDS` is clamped by Agnostis to the `1..600` seconds range.
+`LES_TIMEOUT_SECONDS` is clamped by АРТЕЛЬ to the `1..600` seconds range.
 The default remains `120`, but `/api/search` should be much faster than chat generation.
 
 ## Current LES-side contract
@@ -176,7 +176,7 @@ Revit add-in should not call LES directly in MVP.
 Flow:
 
 ```text
-Revit add-in -> Agnostis backend -> LES
+Revit add-in -> АРТЕЛЬ backend -> LES
 ```
 
-This keeps auth, logging, task context and product decisions centralized in Agnostis.
+This keeps auth, logging, task context and product decisions centralized in АРТЕЛЬ.

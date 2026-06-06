@@ -1,13 +1,13 @@
 ---
 name: agnostis
-description: Use when working on the Agnostis repository, Revit family development platform, BIM/RFA catalog, backend/OpenAPI, GitHub Pages UI prototype, OpenRouter orchestration, or Agnostis-to-LES RAG integration.
+description: Use when working on the АРТЕЛЬ repository, Revit family development platform, BIM/RFA catalog, backend/OpenAPI, GitHub Pages UI prototype, OpenRouter orchestration, or АРТЕЛЬ-to-LES RAG integration.
 ---
 
-# Agnostis Operator Skill
+# АРТЕЛЬ Operator Skill
 
 ## Workspace
 
-Use `/Users/ovc/Projects/Agnosis` as the Agnostis project root.
+Use `/Users/ovc/Projects/Agnosis` as the АРТЕЛЬ project root.
 
 Primary public surfaces:
 
@@ -27,7 +27,7 @@ When changing or diagnosing LES itself, also use the `les` skill.
 
 ## Product Boundaries
 
-Agnostis owns:
+АРТЕЛЬ owns:
 
 - family development tasks;
 - source files, templates and FOP/shared parameter profiles;
@@ -46,7 +46,7 @@ LES owns:
 - local model runtime;
 - dataset routing and validation.
 
-Core rule: Revit add-in calls Agnostis; Agnostis calls LES/OpenRouter. Revit should not call LES or OpenRouter directly in MVP.
+Core rule: Revit add-in calls АРТЕЛЬ; АРТЕЛЬ calls LES/OpenRouter. Revit should not call LES or OpenRouter directly in MVP.
 
 ## First Reads
 
@@ -99,7 +99,7 @@ curl -fsS http://127.0.0.1:8080/api/health | python3 -m json.tool
 launchctl list | grep -E 'les|sovushka|qdrant|mlx'
 ```
 
-Agnostis MVP endpoints for LES:
+АРТЕЛЬ MVP endpoints for LES:
 
 - `GET /api/integrations/les/status` -> LES `/api/health`
 - `POST /api/tasks/{taskId}/rag-context` -> LES `/api/search`
