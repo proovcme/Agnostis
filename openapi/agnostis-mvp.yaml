@@ -230,6 +230,88 @@ paths:
                   $ref: "#/components/schemas/CatalogItem"
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /api/catalog/{catalogItemId}:
+    get:
+      summary: Get catalog item detail
+      operationId: getCatalogItem
+      parameters:
+        - $ref: "#/components/parameters/CatalogItemId"
+      responses:
+        "200":
+          description: Catalog item detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogItemDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/catalog/{catalogItemId}/versions:
+    get:
+      summary: List catalog item versions
+      operationId: listCatalogVersions
+      parameters:
+        - $ref: "#/components/parameters/CatalogItemId"
+      responses:
+        "200":
+          description: Family versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FamilyVersion"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/catalog/{catalogItemId}/publish:
+    post:
+      summary: Publish new catalog version
+      operationId: publishCatalogVersion
+      parameters:
+        - $ref: "#/components/parameters/CatalogItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublishCatalogVersionRequest"
+      responses:
+        "201":
+          description: Published family version
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FamilyVersion"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/catalog/{catalogItemId}/update-task:
+    post:
+      summary: Create update task from catalog item
+      operationId: createCatalogUpdateTask
+      parameters:
+        - $ref: "#/components/parameters/CatalogItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCatalogUpdateTaskRequest"
+      responses:
+        "201":
+          description: Created update task
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogUpdateTaskResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
   securitySchemes:
     bearerAuth:
@@ -243,6 +325,13 @@ components:
       schema:
         type: string
       example: task_0241
+    CatalogItemId:
+      name: catalogItemId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: catalog_001
   responses:
     Unauthorized:
       description: Missing or invalid access token
@@ -726,8 +815,12 @@ components:
         - name
         - category
         - description
+        - status
         - currentVersion
+        - revitCompatibility
+        - fileSize
         - tags
+        - updatedAt
       properties:
         id:
           type: string
@@ -737,9 +830,134 @@ components:
           type: string
         description:
           type: string
+        status:
+          type: string
+          enum:
+            - active
+            - needs_review
+            - deprecated
         currentVersion:
+          type: string
+        currentVersionId:
+          type:
+            - string
+            - "null"
+        currentRfaFileId:
+          type:
+            - string
+            - "null"
+        revitCompatibility:
+          type: string
+        fileSize:
           type: string
         tags:
           type: array
           items:
             type: string
+        updatedAt:
+          type: string
+          format: date-time
+    CatalogItemDetail:
+      type: object
+      required:
+        - item
+        - versions
+      properties:
+        item:
+          $ref: "#/components/schemas/CatalogItem"
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/FamilyVersion"
+    FamilyVersion:
+      type: object
+      required:
+        - id
+        - catalogItemId
+        - version
+        - rfaFileId
+        - status
+        - submittedAt
+      properties:
+        id:
+          type: string
+        catalogItemId:
+          type: string
+        taskId:
+          type:
+            - string
+            - "null"
+        version:
+          type: string
+        rfaFileId:
+          type: string
+        status:
+          type: string
+          enum:
+            - submitted
+            - accepted
+            - published
+            - rejected
+            - archived
+        changelog:
+          type:
+            - string
+            - "null"
+        submittedBy:
+          type:
+            - string
+            - "null"
+        submittedAt:
+          type: string
+          format: date-time
+    PublishCatalogVersionRequest:
+      type: object
+      required:
+        - version
+        - rfaFileId
+      properties:
+        version:
+          type: string
+        rfaFileId:
+          type: string
+        taskId:
+          type:
+            - string
+            - "null"
+        changelog:
+          type:
+            - string
+            - "null"
+        submittedBy:
+          type:
+            - string
+            - "null"
+    CreateCatalogUpdateTaskRequest:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+        assignedTo:
+          type:
+            - string
+            - "null"
+        dueDate:
+          type:
+            - string
+            - "null"
+          format: date
+    CatalogUpdateTaskResult:
+      type: object
+      required:
+        - taskId
+        - taskNumber
+        - catalogItemId
+      properties:
+        taskId:
+          type: string
+        taskNumber:
+          type: string
+        catalogItemId:
+          type: string

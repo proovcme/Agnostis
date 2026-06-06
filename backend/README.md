@@ -36,6 +36,10 @@ Endpoints:
 - `GET /api/revit/tasks/{taskId}/package`
 - `POST /api/revit/tasks/{taskId}/validation-reports`
 - `GET /api/catalog`
+- `GET /api/catalog/{catalogItemId}`
+- `GET /api/catalog/{catalogItemId}/versions`
+- `POST /api/catalog/{catalogItemId}/publish`
+- `POST /api/catalog/{catalogItemId}/update-task`
 
 ## Запуск
 
@@ -61,5 +65,9 @@ curl http://localhost:5000/health
 - `dotnet run --no-build --configuration Release --urls http://127.0.0.1:5057`
 - `GET /health`
 - `POST /api/tasks/task_0241/ai-analysis`
+- `GET /api/catalog/catalog_001`
+- `GET /api/catalog/catalog_001/versions`
+- `POST /api/catalog/catalog_001/publish`
+- `POST /api/catalog/catalog_001/update-task`
 
-Результат: build без предупреждений и ошибок, `/health` вернул `{"status":"ok"}`, AI-analysis endpoint вернул `provider: "openrouter"` и draft specification.
+Результат: build без предупреждений и ошибок, `/health` вернул `{"status":"ok"}`, AI-analysis endpoint вернул `provider: "openrouter"`, catalog endpoints вернули detail/versions, publish создал версию, update-task создал задание `FAM-0002`.

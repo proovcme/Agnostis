@@ -222,6 +222,86 @@ app.MapGet("/api/catalog", (string? query) =>
     return Results.Ok(items);
 });
 
+app.MapGet("/api/catalog/{catalogItemId}", (string catalogItemId) =>
+{
+    return store.Catalog.TryGetValue(catalogItemId, out var item)
+        ? Results.Ok(new CatalogItemDetail(
+            Item: item,
+            Versions: store.FamilyVersions.Values
+                .Where(version => version.CatalogItemId == catalogItemId)
+                .OrderByDescending(version => version.SubmittedAt)
+                .ToArray()))
+        : Results.NotFound(ApiError.Create("catalog_item_not_found", "Catalog item was not found."));
+});
+
+app.MapGet("/api/catalog/{catalogItemId}/versions", (string catalogItemId) =>
+{
+    if (!store.Catalog.ContainsKey(catalogItemId))
+    {
+        return Results.NotFound(ApiError.Create("catalog_item_not_found", "Catalog item was not found."));
+    }
+
+    var versions = store.FamilyVersions.Values
+        .Where(version => version.CatalogItemId == catalogItemId)
+        .OrderByDescending(version => version.SubmittedAt)
+        .ToArray();
+
+    return Results.Ok(versions);
+});
+
+app.MapPost("/api/catalog/{catalogItemId}/publish", (string catalogItemId, PublishCatalogVersionRequest request) =>
+{
+    if (!store.Catalog.TryGetValue(catalogItemId, out var item))
+    {
+        return Results.NotFound(ApiError.Create("catalog_item_not_found", "Catalog item was not found."));
+    }
+
+    var version = new FamilyVersion(
+        Id: $"version_{Guid.NewGuid():N}",
+        CatalogItemId: catalogItemId,
+        TaskId: request.TaskId,
+        Version: request.Version,
+        RfaFileId: request.RfaFileId,
+        Status: "published",
+        Changelog: request.Changelog,
+        SubmittedBy: request.SubmittedBy,
+        SubmittedAt: DateTimeOffset.UtcNow);
+
+    store.FamilyVersions[version.Id] = version;
+    store.Catalog[catalogItemId] = item with
+    {
+        CurrentVersion = request.Version,
+        CurrentVersionId = version.Id,
+        UpdatedAt = DateTimeOffset.UtcNow
+    };
+
+    return Results.Created($"/api/catalog/{catalogItemId}/versions/{version.Id}", version);
+});
+
+app.MapPost("/api/catalog/{catalogItemId}/update-task", (string catalogItemId, CreateCatalogUpdateTaskRequest request) =>
+{
+    if (!store.Catalog.TryGetValue(catalogItemId, out var item))
+    {
+        return Results.NotFound(ApiError.Create("catalog_item_not_found", "Catalog item was not found."));
+    }
+
+    var sequence = store.Tasks.Count + 1;
+    var task = new FamilyTask(
+        Id: $"task_{sequence:0000}",
+        Number: $"FAM-{sequence:0000}",
+        Title: $"Обновить: {item.Name}",
+        Description: request.Reason,
+        Status: TaskStatuses.Draft,
+        RevitCategory: item.Category,
+        AssignedTo: request.AssignedTo,
+        DueDate: request.DueDate,
+        CreatedAt: DateTimeOffset.UtcNow,
+        UpdatedAt: DateTimeOffset.UtcNow);
+
+    store.Tasks[task.Id] = task;
+    return Results.Created($"/api/tasks/{task.Id}", new CatalogUpdateTaskResult(task.Id, task.Number, catalogItemId));
+});
+
 app.Run();
 
 static class TaskStatuses
@@ -386,15 +466,54 @@ record CatalogItem(
     string Name,
     string Category,
     string Description,
+    string Status,
     string CurrentVersion,
-    IReadOnlyList<string> Tags);
+    string? CurrentVersionId,
+    string? CurrentRfaFileId,
+    string RevitCompatibility,
+    string FileSize,
+    IReadOnlyList<string> Tags,
+    DateTimeOffset UpdatedAt);
+
+record CatalogItemDetail(
+    CatalogItem Item,
+    IReadOnlyList<FamilyVersion> Versions);
+
+record FamilyVersion(
+    string Id,
+    string CatalogItemId,
+    string? TaskId,
+    string Version,
+    string RfaFileId,
+    string Status,
+    string? Changelog,
+    string? SubmittedBy,
+    DateTimeOffset SubmittedAt);
+
+record PublishCatalogVersionRequest(
+    string Version,
+    string RfaFileId,
+    string? TaskId,
+    string? Changelog,
+    string? SubmittedBy);
+
+record CreateCatalogUpdateTaskRequest(
+    string Reason,
+    string? AssignedTo,
+    DateOnly? DueDate);
+
+record CatalogUpdateTaskResult(
+    string TaskId,
+    string TaskNumber,
+    string CatalogItemId);
 
 record AppStore(
     ConcurrentDictionary<string, FamilyTask> Tasks,
     ConcurrentDictionary<string, FamilySpecification> Specifications,
     ConcurrentDictionary<string, SourceFile> Files,
     ConcurrentDictionary<string, ValidationReport> ValidationReports,
-    ConcurrentDictionary<string, CatalogItem> Catalog);
+    ConcurrentDictionary<string, CatalogItem> Catalog,
+    ConcurrentDictionary<string, FamilyVersion> FamilyVersions);
 
 static class SeedData
 {
@@ -448,6 +567,31 @@ static class SeedData
             CreatedAt: DateTimeOffset.UtcNow,
             UpdatedAt: DateTimeOffset.UtcNow);
 
+        var catalogItem = new CatalogItem(
+            Id: "catalog_001",
+            Name: "Шкаф архивный металлический",
+            Category: "Furniture",
+            Description: "Параметрическое семейство шкафа.",
+            Status: "active",
+            CurrentVersion: "0.1.0",
+            CurrentVersionId: "version_001",
+            CurrentRfaFileId: "file_rfa_001",
+            RevitCompatibility: "2023-2025",
+            FileSize: "1.8 MB",
+            Tags: ["мебель", "шкаф", "архив"],
+            UpdatedAt: DateTimeOffset.UtcNow);
+
+        var familyVersion = new FamilyVersion(
+            Id: "version_001",
+            CatalogItemId: catalogItem.Id,
+            TaskId: task.Id,
+            Version: "0.1.0",
+            RfaFileId: "file_rfa_001",
+            Status: "published",
+            Changelog: "Initial MVP catalog version",
+            SubmittedBy: "bim.manager@example.com",
+            SubmittedAt: DateTimeOffset.UtcNow);
+
         return new AppStore(
             Tasks: new ConcurrentDictionary<string, FamilyTask>(new[] { KeyValuePair.Create(task.Id, task) }),
             Specifications: new ConcurrentDictionary<string, FamilySpecification>(new[] { KeyValuePair.Create(task.Id, specification) }),
@@ -458,7 +602,11 @@ static class SeedData
             ValidationReports: new ConcurrentDictionary<string, ValidationReport>(),
             Catalog: new ConcurrentDictionary<string, CatalogItem>(new[]
             {
-                KeyValuePair.Create("catalog_001", new CatalogItem("catalog_001", "Шкаф архивный металлический", "Furniture", "Параметрическое семейство шкафа.", "0.1.0", ["мебель", "шкаф", "архив"]))
+                KeyValuePair.Create(catalogItem.Id, catalogItem)
+            }),
+            FamilyVersions: new ConcurrentDictionary<string, FamilyVersion>(new[]
+            {
+                KeyValuePair.Create(familyVersion.Id, familyVersion)
             }));
     }
 }

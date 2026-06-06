@@ -74,9 +74,13 @@ POST /api/revit/tasks/{taskId}/submissions
 ```http
 GET /api/catalog
 GET /api/catalog/{catalogItemId}
+GET /api/catalog/{catalogItemId}/versions
 POST /api/catalog/{catalogItemId}/publish
+POST /api/catalog/{catalogItemId}/update-task
 GET /api/catalog/{catalogItemId}/download
 ```
+
+`POST /api/catalog/{catalogItemId}/update-task` создает новое задание на обновление опубликованного семейства. Это основной мост от каталога обратно к производственному workflow.
 
 ## Task Package для Revit
 
@@ -255,4 +259,3 @@ Result:
 - Shared parameter добавляется только при наличии GUID.
 - Backend не должен доверять validation report как единственному источнику истины для приемки.
 - AI не имеет прямого endpoint для выполнения действий в Revit.
-
