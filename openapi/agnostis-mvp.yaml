@@ -156,7 +156,7 @@ paths:
           $ref: "#/components/responses/NotFound"
   /api/tasks/{taskId}/rag-context:
     post:
-      summary: Retrieve LES RAG context for task
+      summary: Retrieve LES search context for task
       operationId: getTaskRagContext
       parameters:
         - $ref: "#/components/parameters/TaskId"
@@ -644,15 +644,33 @@ components:
             - string
             - "null"
           default: CAD_BIM
+        topK:
+          type:
+            - integer
+            - "null"
+          minimum: 1
+          maximum: 50
+          default: 8
+        includeTrace:
+          type:
+            - boolean
+            - "null"
+          default: false
         validationEnabled:
+          deprecated: true
+          description: Legacy chat flag retained for request compatibility. The MVP backend now calls LES /api/search.
           type:
             - boolean
             - "null"
         rerankerEnabled:
+          deprecated: true
+          description: Legacy chat flag retained for request compatibility. The MVP backend now calls LES /api/search.
           type:
             - boolean
             - "null"
         semanticCacheEnabled:
+          deprecated: true
+          description: Legacy chat flag retained for request compatibility. The MVP backend now calls LES /api/search.
           type:
             - boolean
             - "null"

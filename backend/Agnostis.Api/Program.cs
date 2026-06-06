@@ -180,14 +180,13 @@ app.MapPost("/api/tasks/{taskId}/rag-context", async (
     var options = LesOptions.FromConfiguration(configuration);
     using var client = httpClientFactory.CreateClient();
     client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
-    using var lesRequest = CreateLesRequest(HttpMethod.Post, options, "/api/chat");
+    using var lesRequest = CreateLesRequest(HttpMethod.Post, options, "/api/search");
     lesRequest.Content = JsonContent.Create(new
     {
-        question,
+        query = question,
         dataset_filter = request.DatasetFilter ?? "CAD_BIM",
-        validation_enabled = request.ValidationEnabled,
-        reranker_enabled = request.RerankerEnabled,
-        semantic_cache_enabled = request.SemanticCacheEnabled
+        top_k = request.TopK ?? 8,
+        include_trace = request.IncludeTrace ?? false
     });
 
     try
@@ -585,6 +584,8 @@ record AIAnalysisResult(
 record LesRagContextRequest(
     string? Question,
     string? DatasetFilter,
+    int? TopK,
+    bool? IncludeTrace,
     bool? ValidationEnabled,
     bool? RerankerEnabled,
     bool? SemanticCacheEnabled);

@@ -80,11 +80,11 @@ LES smoke через ZeroTier:
 
 - `LES_BASE_URL=http://10.195.146.98:8050`
 - `GET /api/integrations/les/status` вернул `status: "ok"`
-- `POST /api/tasks/task_0241/rag-context` ранее проходил полный путь до LES `/api/chat` и возвращал `status: "ok"`
-- контрольный прогон с `LES_TIMEOUT_SECONDS=10` вернул `status: "timeout"`, то есть backend не зависает на долгой генерации
-- повторный прогон с рабочим timeout может вернуть `status: "upstream_error"` при `429` от LES, если локальный chat runtime занят или ограничивает параллельные запросы
+- `POST /api/tasks/task_0241/rag-context` проходит полный путь до LES `/api/search` и возвращает `status: "ok"` при успешном retrieval
+- контрольный прогон с `LES_TIMEOUT_SECONDS=10` вернул `status: "timeout"`, то есть backend не зависает на долгом LES-вызове
+- повторный прогон с рабочим timeout может вернуть `status: "upstream_error"` при `429` от LES, если локальный runtime занят или ограничивает параллельные запросы
 
-Важно: `rag-context` в текущем MVP вызывает LES `/api/chat`, поэтому может ждать локальную модель и генерацию. Для интерактивной морды нужен отдельный retrieval-only endpoint в LES или async job в Agnostis.
+Важно: `rag-context` в текущем MVP вызывает LES `/api/search`, а не `/api/chat`, поэтому не должен запускать локальную генерацию. Суммаризацию найденного контекста нужно делать отдельным шагом через OpenRouter или LES chat.
 
 ## LES configuration
 

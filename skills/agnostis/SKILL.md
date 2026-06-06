@@ -102,9 +102,9 @@ launchctl list | grep -E 'les|sovushka|qdrant|mlx'
 Agnostis MVP endpoints for LES:
 
 - `GET /api/integrations/les/status` -> LES `/api/health`
-- `POST /api/tasks/{taskId}/rag-context` -> LES `/api/chat`
+- `POST /api/tasks/{taskId}/rag-context` -> LES `/api/search`
 
-Current limitation: `rag-context` uses LES chat, so it may generate slowly or return upstream `429` when the LES chat runtime is busy. For interactive UX, prefer a future retrieval-only LES endpoint returning ranked chunks/sources/elements without model generation.
+`rag-context` uses LES retrieval-only search and should not trigger local model generation. Use LES `/api/chat` only as a separate optional summarization step.
 
 Backend LES config:
 

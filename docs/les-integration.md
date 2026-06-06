@@ -67,21 +67,21 @@ POST /api/tasks/{taskId}/rag-context
 Agnostis backend calls:
 
 ```http
-POST {LES_BASE_URL}/api/chat
+POST {LES_BASE_URL}/api/search
 ```
 
-Important: this MVP endpoint currently uses LES chat, not a dedicated fast retrieval endpoint.
-It can trigger local model generation and may take tens of seconds on cold runtime.
-It can also return upstream errors such as `429` when the LES chat runtime is busy.
-For production UX this should become an asynchronous job or be replaced with a LES retrieval-only API.
+Important: this MVP endpoint uses LES retrieval-only search, not LES chat.
+It returns ranked chunks/sources/elements without local LLM generation.
+Use LES `/api/chat` only as a separate optional summarization step.
 
 Default LES payload:
 
 ```json
 {
-  "question": "Найди похожие BIM/RFA/CAD_BIM кейсы...",
+  "query": "Найди похожие BIM/RFA/CAD_BIM кейсы...",
   "dataset_filter": "CAD_BIM",
-  "validation_enabled": false
+  "top_k": 8,
+  "include_trace": false
 }
 ```
 
@@ -152,13 +152,11 @@ LES_BASE_URL=http://10.195.146.98:8050
 ```
 
 `LES_TIMEOUT_SECONDS` is clamped by Agnostis to the `1..600` seconds range.
-The default is `120` because `/api/chat` can lazy-load/generate.
+The default remains `120`, but `/api/search` should be much faster than chat generation.
 
-## Current limitation
+## Current LES-side contract
 
-The current `rag-context` endpoint proves the integration path, but it is not the final RAG retrieval contract.
-
-Required next LES-side contract for a smooth UI:
+The current `rag-context` endpoint uses the LES retrieval-only contract:
 
 ```http
 POST {LES_BASE_URL}/api/search
