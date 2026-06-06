@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agnostis"
+  short_description: "Agnostis plus LES RAG workflow"
+  default_prompt: "Use $agnostis to work on the Agnostis Revit family platform with LES RAG context."
