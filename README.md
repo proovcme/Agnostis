@@ -69,9 +69,11 @@ Skill фиксирует рабочий контекст АРТЕЛЬ, связ�
 - `docs/` — продуктовая и техническая документация.
 - `backend/Agnostis.Api/` — skeleton backend API для MVP.
 - `openapi/agnostis-mvp.yaml` — начальная OpenAPI-схема MVP.
+- `schema/artel_family_learning_case.schema.json` — public-safe contract learning case для LES `ARTEL_Index`.
+- `examples/family_learning_case.metal_cabinet.json` — demo learning case без приватных RFA данных.
 - `skills/agnostis/` — Codex skill для работы с АРТЕЛЬ и LES RAG контуром.
-- `.github/workflows/pages.yml` — публикация макета на GitHub Pages.
-- `MyVeras.*`, `Dist/`, `MyVeras.sln` — существующая кодовая база Revit-плагина, сохраненная как legacy/исходный материал. Сейчас она не является основным описанием АРТЕЛЬ.
+- GitHub Pages workflow публикует статический UI-прототип этого standalone mirror.
+- `MyVeras.*`, `MyVeras.sln` — существующая кодовая база Revit-плагина, сохраненная как legacy/исходный материал. Бинарный `Dist/` в LES snapshot не переносится.
 
 ## Проверка прототипа локально
 
@@ -91,6 +93,14 @@ http://127.0.0.1:5057/
 
 Подробный сценарий: [RUNBOOK_HAND_TEST.md](RUNBOOK_HAND_TEST.md).
 
+Для содержательного LES retrieval после clean install сначала посадить demo
+`FamilyLearningCase` в `ARTEL_Index` из корня LES repo:
+
+```bash
+cd /path/to/LES_v2
+uv run python tools/seed_artel_learning_cases.py --verify-search
+```
+
 Статический прототип без backend все еще можно открыть отдельно:
 
 ```bash
@@ -102,3 +112,22 @@ python3 -m http.server 4173
 ```text
 http://127.0.0.1:4173/app/index.html
 ```
+
+## Упаковка ручного стенда
+
+Повторяемый `artel-mvp.zip` сейчас собирается из umbrella LES repo:
+
+```bash
+cd /path/to/LES_v2
+uv run python tools/build_artel_release.py
+```
+
+Артефакт:
+
+```text
+dist/artel-mvp.zip
+```
+
+Пакет включает UI, backend skeleton, OpenAPI, docs, skill и runbook. Legacy
+Revit/MyVeras source остается в LES repo как исходный материал, но не входит в
+MVP hand-test zip.
