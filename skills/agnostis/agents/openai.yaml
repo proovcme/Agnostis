@@ -1,4 +1,4 @@
 interface:
   display_name: "АРТЕЛЬ"
-  short_description: "АРТЕЛЬ plus LES RAG workflow"
-  default_prompt: "Use $agnostis to work on the АРТЕЛЬ Revit family platform with LES RAG context."
+  short_description: "Standalone Revit agent and family factory"
+  default_prompt: "Use $agnostis to work on standalone ARTEL. Treat LES as an optional evidence integration, not a runtime dependency."

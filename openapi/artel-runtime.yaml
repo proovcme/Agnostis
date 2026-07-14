@@ -1,0 +1,148 @@
+openapi: 3.1.0
+info:
+  title: ARTEL Local Runtime API
+  version: 0.25.9
+  description: Core loopback contract between ARTEL Revit add-in and local backend. Extended task/catalog prototype routes remain implementation details until contracted here.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: http://127.0.0.1:5057
+security: []
+paths:
+  /health:
+    get:
+      summary: Check local backend health
+      operationId: getHealth
+      responses:
+        "200":
+          description: Backend health
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, checkedAt]
+                properties:
+                  status: {type: string, const: ok}
+                  checkedAt: {type: string, format: date-time}
+        "400": {description: Invalid request}
+  /api/integrations/model/status:
+    get:
+      summary: Read local Ollama runtime status
+      operationId: getModelStatus
+      responses:
+        "200":
+          description: Ollama/model status written by runtime bootstrap
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StatusPayload"}
+        "400": {description: Invalid request}
+  /api/integrations/les/status:
+    get:
+      summary: Read optional LES integration status
+      operationId: getLesStatus
+      responses:
+        "200":
+          description: Optional LES integration status
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/StatusPayload"}
+        "400": {description: Invalid request}
+  /api/assistant/live:
+    post:
+      summary: Continue the live Revit agent loop
+      operationId: continueLiveRevitAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/LiveAgentRequest"}
+      responses:
+        "200":
+          description: Tool request, final read answer, or prepared action
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/LiveAgentResponse"}
+        "400": {description: Invalid request}
+        "503": {description: Model unavailable or agent round limit reached}
+  /api/generator/draft:
+    post:
+      summary: Create a family specification draft
+      operationId: createFamilyDraft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Evidence-backed family specification draft
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+        "400": {description: Invalid request}
+  /api/operator/plan:
+    post:
+      summary: Create a legacy operator plan
+      operationId: createLegacyOperatorPlan
+      deprecated: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, additionalProperties: true}
+      responses:
+        "200":
+          description: Legacy plan surface pending MCP replacement
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+        "400": {description: Invalid request}
+  /api/integrations/les/export:
+    post:
+      summary: Export a BIM evidence package to LES
+      operationId: exportBimPackageToLes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, additionalProperties: true}
+      responses:
+        "200":
+          description: Local/LES export result
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+        "400": {description: Invalid request}
+components:
+  schemas:
+    StatusPayload:
+      type: object
+      additionalProperties: true
+      properties:
+        status: {type: string}
+        message: {type: string}
+    LiveAgentRequest:
+      type: object
+      required: [question]
+      properties:
+        question: {type: string, minLength: 1}
+        datasetFilter: {type: [string, "null"]}
+        topK: {type: [integer, "null"], minimum: 1}
+        conversation: {type: [array, "null"], items: {type: object, additionalProperties: true}}
+        toolResult: {type: [object, "null"], additionalProperties: true}
+    LiveAgentResponse:
+      type: object
+      required: [status]
+      additionalProperties: true
+      properties:
+        status:
+          type: string
+          enum: [tool_request, complete, model_error]
+        model: {type: string}
+        answer: {type: [string, "null"]}
+        conversation: {type: array, items: {type: object, additionalProperties: true}}
+        toolRequest: {type: [object, "null"], additionalProperties: true}
+        action: {type: [object, "null"], additionalProperties: true}

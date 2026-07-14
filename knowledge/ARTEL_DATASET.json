@@ -1,0 +1,11 @@
+{
+  "schema": "artel.module_dataset.v1",
+  "dataset_name": "ARTEL_Index",
+  "dataset_scope": "system",
+  "module_id": "artel",
+  "source_role": "module_knowledge",
+  "revision": "2026-07-14.2",
+  "content_root": "ARTEL",
+  "retrieval_contract": "les.rag.index-contract.v2",
+  "notes": "Git-tracked canonical corpus bundled with standalone ARTEL; user BIM exports belong to a separate user dataset."
+}

@@ -1,133 +1,98 @@
 # АРТЕЛЬ
 
-**АРТЕЛЬ** — AI-платформа для управления разработкой Revit-семейств: от задания и исходников до спецификации, проверки, приемки и публикации во внутренний каталог.
+**АРТЕЛЬ** — локальный Revit-агент и генератор семейств для Autodesk Revit 2024/2025.
 
-Расшифровка: **Автоматизированная Разработка Типовых Элементов и Локальных семейств**.
+Репозиторий содержит самостоятельный продукт: Revit add-in, локальный backend, интерфейс внутри Revit, installer source, агентные skills и служебный корпус `ARTEL_Index`. ЛЕС остаётся внешним опциональным контуром поиска и приёма BIM-экспорта; исходники АРТЕЛИ больше не должны развиваться как независимая копия внутри LES.
 
-Проект ранее назывался **Agnostis**. Это имя сохраняется в части технических путей, OpenAPI-файлов и legacy-кода до отдельного механического rename.
+## Что строим
 
-## About
+АРТЕЛЬ состоит из трёх пользовательских возможностей:
 
-В основе продукта — связка веб-сервиса и Revit-плагина.
+1. **Генератор семейств** — принимает текст, ТЗ, PDF/DOCX/XLSX, ссылку или изображение; формирует проверяемую спецификацию семейства и пошаговый план.
+2. **BIM-агент** — отвечает по активному документу Revit, считает, выделяет элементы, готовит и выполняет действия через Revit API.
+3. **Экспорт данных** — показывает read-only preview и отдельно отправляет подтверждённый BIM-пакет в пользовательский индекс LES.
 
-Веб-сервис хранит задания, исходники, шаблоны, ФОП/shared parameters, стандарты, AI-спецификации, версии семейств и каталог. Revit-плагин получает формализованное задание, помогает разработчику применить параметры и типы, проверяет открытое семейство и отправляет RFA с отчетом обратно.
+Целевая агентная архитектура:
 
-Главная продуктовая сущность — задание на разработку семейства. Каталог — результат принятых заданий и база для дальнейшего поиска и переиспользования.
+```text
+пользователь
+  -> Revit Agent Skill
+  -> MCP capability catalog
+  -> live Revit evidence
+  -> preview / confirmation
+  -> ExternalEvent + Transaction
+  -> фактический результат
 
-Подробнее: [About](docs/about.md)
+ARTEL Index -> справка Revit API / FOP / learning cases
+LES         -> опциональный retrieval и ARTEL_BIM_Index
+```
 
-## Архитектурная позиция
+Skill определяет, как рассуждать. MCP даёт модели глаза и руки. Add-in остаётся единственным исполнителем Revit API на корректном API-потоке.
 
-АРТЕЛЬ не строит отдельный RAG с нуля. Для локального знания, поиска по BIM/RFA/CAD_BIM данным и объектному контексту используется LES.
+## Текущий статус
 
-Разделение ответственности:
+`0.25.9 / build 420` — **skill-first source candidate**. Он не собирался и не устанавливался в рамках выноса репозитория.
 
-- АРТЕЛЬ — задания, исходники, шаблоны, ФОП/shared parameters, AI-спецификации, Revit workflow, приемка и каталог.
-- LES — retrieval, Qdrant/SQLite, CAD/BIM JSON ingestion, локальная модель, dataset routing и object-level context.
-- OpenRouter — внешний AI provider для анализа, генерации черновиков спецификаций и объяснений поверх найденного контекста.
+Последний установленный пакет `0.25.8-419` отвергнут живым Revit-тестом: модель передала выдуманное поле `id` для спецификации светильников. Общая тестовая сюита и synthetic model smoke этого не обнаружили. Поэтому следующий рабочий этап — MCP capability layer, начиная с `schedule_fields` и typed `aggregate`, а не новые предметные ветки в C#.
 
-Ключевой принцип BIM RFA RAG: модель вторична, качество исходных данных первично. Чем больше принятых семейств, спецификаций, отчетов проверок и RFA-derived JSON попадает в контур знаний, тем лучше следующая разработка семейств.
+Подробно: [docs/STATUS.md](docs/STATUS.md).
 
-## UI-прототип
+## Архитектурные правила
 
-- GitHub Pages: <https://proovcme.github.io/Agnostis/>
-- Исходники макета: [app](app)
-- Документация макета: [docs/ui-prototype.md](docs/ui-prototype.md)
+- Модель понимает намерение и выбирает профессиональное решение.
+- Код читает Revit, валидирует идентичности/типы/единицы, считает и исполняет.
+- Пользовательское слово не является Revit category/id/parameter.
+- Параметр элемента не является полем спецификации.
+- Модель не складывает форматированные строки: суммы считает typed tool.
+- Отсутствующая capability возвращается как `MISSING`, а не заменяется соседним инструментом.
+- Мутации идут только через preview, подтверждение, `ExternalEvent`, `Transaction` и rollback.
+- Никаких сгенерированных C#-скриптов или управления Revit мышью.
 
-## Документация
+## Состав репозитория
 
-- [About](docs/about.md)
-- [Концепция продукта](docs/product-concept.md)
-- [Состав MVP](docs/mvp-scope.md)
-- [MVP Roadmap](docs/mvp-roadmap.md)
-- [MVP User Stories](docs/mvp-user-stories.md)
-- [MVP API Contract](docs/mvp-api-contract.md)
-- [Revit Add-In MVP](docs/revit-addin-mvp.md)
-- [Technical Stack](docs/technical-stack.md)
-- [OpenRouter Integration](docs/openrouter.md)
-- [LES Integration](docs/les-integration.md)
-- [Learning Loop](docs/learning-loop.md)
-- [BIM RFA RAG](docs/bim-rfa-rag.md)
-- [Архитектура системы](docs/system-architecture.md)
-- [Доменная модель](docs/domain-model.md)
-- [Backlog](docs/backlog.md)
-- [UI-прототип](docs/ui-prototype.md)
-- [Открытые вопросы](docs/open-questions.md)
+| Путь | Назначение |
+|---|---|
+| `ARTEL.Revit.FamilyFactory/` | add-in Revit 2024/2025, DockablePane и API-thread executor |
+| `backend/Agnostis.Api/` | локальный ASP.NET Core backend; namespace пока сохраняет историческое имя |
+| `app/` | интерфейс, который backend отдаёт в Revit pane |
+| `skills/` | Revit agent, family generator и Codex/operator skills |
+| `knowledge/ARTEL/` | Git-копия служебного корпуса `ARTEL_Index` |
+| `conformance/` | проверяемые семейные планы и fixtures |
+| `installer/` | Inno Setup, runtime scripts и графика без собранного EXE |
+| `openapi/` | публичный core runtime contract |
+| `docs/` | текущая архитектура, MCP, LES, разработка и статус |
 
-## Codex skill
+Legacy MyVeras, `Dist`, `bin`, `obj`, DLL/PDB и Tauri/Electron-макеты в новый канон не входят.
 
-Для работы с проектом подготовлен skill:
+## Быстрый запуск backend
 
-- исходник в репозитории: [skills/agnostis/SKILL.md](skills/agnostis/SKILL.md)
-- локальная установленная копия: `/Users/ovc/.codex/skills/agnostis/SKILL.md`
-
-Skill фиксирует рабочий контекст АРТЕЛЬ, связь с LES, правила проверки backend/OpenAPI, документационный closeout и ограничения: Revit-плагин идет через backend АРТЕЛЬ, АРТЕЛЬ вызывает LES/OpenRouter, LES runtime не трогаем без явного запроса.
-
-## Текущий состав репозитория
-
-- `app/` — статический прототип веб-интерфейса АРТЕЛЬ.
-- `docs/` — продуктовая и техническая документация.
-- `backend/Agnostis.Api/` — skeleton backend API для MVP.
-- `openapi/agnostis-mvp.yaml` — начальная OpenAPI-схема MVP.
-- `schema/artel_family_learning_case.schema.json` — public-safe contract learning case для LES `ARTEL_Index`.
-- `examples/family_learning_case.metal_cabinet.json` — demo learning case без приватных RFA данных.
-- `skills/agnostis/` — Codex skill для работы с АРТЕЛЬ и LES RAG контуром.
-- GitHub Pages workflow публикует статический UI-прототип этого standalone mirror.
-- `MyVeras.*`, `MyVeras.sln` — существующая кодовая база Revit-плагина, сохраненная как legacy/исходный материал. Бинарный `Dist/` в LES snapshot не переносится.
-
-## Проверка прототипа локально
-
-Рекомендуемый ручной стенд запускается через backend, чтобы UI сразу проверял API и LES:
+Требуется .NET 8 и установленная Ollama с выбранной tool-capable моделью.
 
 ```bash
-LES_BASE_URL=http://127.0.0.1:8050 \
-LES_TIMEOUT_SECONDS=20 \
 dotnet run --project backend/Agnostis.Api --urls http://127.0.0.1:5057
 ```
 
-Открыть:
-
-```text
-http://127.0.0.1:5057/
-```
-
-Подробный сценарий: [RUNBOOK_HAND_TEST.md](RUNBOOK_HAND_TEST.md).
-
-Для содержательного LES retrieval после clean install сначала посадить demo
-`FamilyLearningCase` в `ARTEL_Index` из корня LES repo:
+Проверка:
 
 ```bash
-cd /path/to/LES_v2
-uv run python tools/seed_artel_learning_cases.py --verify-search
+curl -fsS http://127.0.0.1:5057/health
 ```
 
-Статический прототип без backend все еще можно открыть отдельно:
+Статический интерфейс будет доступен на `http://127.0.0.1:5057/`.
 
-```bash
-python3 -m http.server 4173
-```
+Сборка add-in и installer выполняется только на Windows с установленными Revit 2024/2025 SDK assemblies. См. [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
-После запуска открыть:
+## Документация
 
-```text
-http://127.0.0.1:4173/app/index.html
-```
+- [Архитектура](docs/ARCHITECTURE.md)
+- [MCP contract](docs/MCP_CONTRACT.md)
+- [Связь с LES](docs/LES_INTEGRATION.md)
+- [Разработка и выпуск](docs/DEVELOPMENT.md)
+- [Текущее состояние и известные провалы](docs/STATUS.md)
+- [OpenAPI core runtime](openapi/artel-runtime.yaml)
 
-## Упаковка ручного стенда
+## GitHub Pages
 
-Повторяемый `artel-mvp.zip` сейчас собирается из umbrella LES repo:
+GitHub Pages публикует только статический `app/` как демонстрацию интерфейса. Рабочий продукт запускается внутри Revit и требует локальный backend.
 
-```bash
-cd /path/to/LES_v2
-uv run python tools/build_artel_release.py
-```
-
-Артефакт:
-
-```text
-dist/artel-mvp.zip
-```
-
-Пакет включает UI, backend skeleton, OpenAPI, docs, skill и runbook. Legacy
-Revit/MyVeras source остается в LES repo как исходный материал, но не входит в
-MVP hand-test zip.
+<https://proovcme.github.io/Agnostis/>

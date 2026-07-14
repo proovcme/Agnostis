@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revit API Operator"
+  short_description: "Планирует и безопасно выполняет действия Revit API"
+  default_prompt: "Используй $revit-api-operator: проверь активную модель, найди evidence Revit API и покажи безопасный план до выполнения."
