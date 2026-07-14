@@ -1,10 +1,17 @@
 .DS_Store
+._*
 .vs/
 *.user
 *.suo
 *.zip
 *.dll
 *.pdb
+*.exe
 **/bin/
 **/obj/
 **/publish/
+**/artifacts/
+installer/dist/
+installer/payload/
+logs/
+state/

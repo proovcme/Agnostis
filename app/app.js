@@ -298,6 +298,8 @@ const state = {
   runtime: {
     api: "checking",
     les: "checking",
+    model: "checking",
+    modelMessage: "Проверяю Ollama…",
     taskCount: null,
     catalogCount: null,
     rag: null,
@@ -567,6 +569,7 @@ function renderRuntimePanel(task) {
   const rag = runtime.rag;
   const apiClass = runtime.api === "ok" ? "ready" : runtime.api === "checking" ? "review" : "blocked";
   const lesClass = runtime.les === "ok" ? "ready" : runtime.les === "checking" ? "review" : "blocked";
+  const modelClass = runtime.model === "ready" ? "ready" : runtime.model === "checking" ? "review" : "blocked";
   const ragStatus = rag ? `${rag.status} · HTTP ${rag.httpStatus}` : "не запускали";
   const ragCount = extractRagCount(rag?.response);
   const ragText = rag
@@ -582,6 +585,10 @@ function renderRuntimePanel(task) {
       <div class="runtime-row">
         <span>LES</span>
         <strong class="${lesClass}">${runtime.les}</strong>
+      </div>
+      <div class="runtime-row">
+        <span>Ollama · qwen3.5:9b</span>
+        <strong class="${modelClass}" title="${esc(runtime.modelMessage || "")}">${runtime.model}</strong>
       </div>
       <div class="runtime-row">
         <span>Seed data</span>
@@ -1141,12 +1148,13 @@ document.addEventListener("input", (event) => {
 });
 
 async function refreshRuntimeStatus() {
-  state.runtime = { ...state.runtime, api: "checking", les: "checking", error: null };
+  state.runtime = { ...state.runtime, api: "checking", les: "checking", model: "checking", error: null };
   renderDetails();
   try {
-    const [health, les, apiTasks, apiCatalog] = await Promise.all([
+    const [health, les, model, apiTasks, apiCatalog] = await Promise.all([
       apiGet("/health"),
       apiGet("/api/integrations/les/status"),
+      apiGet("/api/integrations/model/status"),
       apiGet("/api/tasks"),
       apiGet("/api/catalog"),
     ]);
@@ -1154,6 +1162,8 @@ async function refreshRuntimeStatus() {
       ...state.runtime,
       api: health.status === "ok" ? "ok" : "unhealthy",
       les: les.status || "unknown",
+      model: model.ollama?.status || model.status || "unknown",
+      modelMessage: model.ollama?.message || model.message || "Статус модели неизвестен",
       taskCount: Array.isArray(apiTasks) ? apiTasks.length : 0,
       catalogCount: Array.isArray(apiCatalog) ? apiCatalog.length : 0,
       checkedAt: new Date().toISOString(),
@@ -1164,6 +1174,8 @@ async function refreshRuntimeStatus() {
       ...state.runtime,
       api: "static",
       les: "unknown",
+      model: "unknown",
+      modelMessage: "Backend недоступен",
       error: "Backend недоступен. Статический прототип открыт без API.",
     };
   }

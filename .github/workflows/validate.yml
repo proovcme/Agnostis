@@ -1,0 +1,33 @@
+name: Validate ARTEL source
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Reject build outputs
+        shell: bash
+        run: |
+          if git ls-files | grep -E '(^|/)(Dist|bin|obj|publish|artifacts?)/|\.(dll|pdb|exe)$'; then
+            echo "Build outputs are not allowed in Git"
+            exit 1
+          fi
+      - name: Build backend
+        run: dotnet build backend/Agnostis.Api/Agnostis.Api.csproj --configuration Release
+      - name: Check UI JavaScript
+        run: node --check app/app.js
+      - name: Check required standalone files
+        shell: bash
+        run: |
+          test -f version.json
+          test -f skills/revit-api-operator/SKILL.md
+          test -f knowledge/ARTEL_DATASET.json
+          test -f docs/MCP_CONTRACT.md

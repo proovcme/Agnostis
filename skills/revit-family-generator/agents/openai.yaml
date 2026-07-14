@@ -1,0 +1,4 @@
+interface:
+  display_name: "ARTEL Revit Family Generator"
+  short_description: "Model-owned Revit family specifications"
+  default_prompt: "Используй $revit-family-generator, чтобы превратить исходные требования в проверяемую спецификацию семейства Revit."
